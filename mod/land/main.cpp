@@ -502,7 +502,7 @@ THook(void *, _ZN12ServerPlayer9tickWorldERK4Tick, ServerPlayer *sp, unsigned lo
             }else{
                 sb.write("You entered "sv);sb.write(newname);sb.write("'s land!"sv);
             }
-            //sendText(sp, sb.get(), TextType::TIP);
+            sendText(sp, sb.get(), TextType::TIP);
             oldname = newname;
         }
     }
