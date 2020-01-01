@@ -110,6 +110,7 @@ void cm(argVec& a,CommandOrigin const& b,CommandOutput& c){
     auto sp=getSP(b.getEntity());
     ItemStack is;
     auto pis=createItemStack_static(3,0,10,&is);
+    pis->setCustomLore({"kksk"});
     giveItem(*sp,pis);
     printf("res %d\n",takeItem(*sp,&sp->getCarriedItem()));
     auto eid=summon(sp->getRegion(),sp->getPos(),"zombie");
@@ -124,8 +125,13 @@ void cm(argVec& a,CommandOrigin const& b,CommandOutput& c){
         is.~ItemStack();
         pis=createItemStack_static("diamond_sword",1,&is);
         act->setCarriedItem(*pis);
+        is.~ItemStack();
+        pis=createItemStack_static("diamond_chestplate",1,&is);
+        pis->setCustomName("kksk");
+        act->setArmor((ArmorSlot)1,*pis);
     }
     return;
+    /*
     auto& pos=sp->getPos();
     MyPkt pk(12,[&](void*,BinaryStream&bs){
     bs.writeUnsignedInt64(114514);
@@ -138,38 +144,7 @@ void cm(argVec& a,CommandOrigin const& b,CommandOutput& c){
         bs.writeVec3({0,0,0});
         bs.writeVec3({0,0,0});
         bs.writeUnsignedVarInt(0); //item
-       /* {
-            bs.writeStr("wtf");
-            bs.writeVec3({0,0,0});
-        }*/
         bs.writeUnsignedInt(4);
-        /*   public static final int DATA_TYPE_BYTE = 0;
-    public static final int DATA_TYPE_SHORT = 1;
-    public static final int DATA_TYPE_INT = 2;
-    public static final int DATA_TYPE_FLOAT = 3;
-    public static final int DATA_TYPE_STRING = 4;
-    public static final int DATA_TYPE_NBT = 5;
-    public static final int DATA_TYPE_POS = 6;
-    public static final int DATA_TYPE_LONG = 7;
-    public static final int DATA_TYPE_VECTOR3F = 8;
-*/
-
-        //meta
-        /*    
-        public static final int DATA_SCALE = 38; //float
-            public static final int DATA_BOUNDING_BOX_WIDTH = 53; //float
-    public static final int DATA_BOUNDING_BOX_HEIGHT = 54; //float
-public static final int DATA_NAMETAG = 4; //string
-
-            metadata.putLong(Entity.DATA_FLAGS, flags)
-                .putLong(Entity.DATA_LEAD_HOLDER_EID,-1)
-                .putFloat(Entity.DATA_SCALE, 0.01f) //zero causes problems on debug builds?
-                .putFloat(Entity.DATA_BOUNDING_BOX_HEIGHT, 0.01f)
-                .putFloat(Entity.DATA_BOUNDING_BOX_WIDTH, 0.01f);
-        if (!Strings.isNullOrEmpty(title)) {
-            metadata.putString(Entity.DATA_NAMETAG, title);
-        }
-*/
 bs.writeUnsignedVarInt(4);bs.writeUnsignedVarInt(4);bs.writeStr("nmsl");
 bs.writeUnsignedVarInt(38);bs.writeUnsignedVarInt(3);bs.writeFloat(5);
 bs.writeUnsignedVarInt(53);bs.writeUnsignedVarInt(3);bs.writeFloat(5);
@@ -179,8 +154,15 @@ bs.writeUnsignedVarInt(54);bs.writeUnsignedVarInt(3);bs.writeFloat(5);
         bs.writeUnsignedVarInt(0);
         bs.writeStr("114514");
         bs.writeSignedInt(114514);
+    });*/
+    /*
+    MyPkt pk(0x4a,[&](void*,BinaryStream&bs){
+        bs.writeUnsignedVarInt64(sp->getUniqueID().id);
+        bs.writeUnsignedVarInt(0);
+        bs.writeStr("kksk");
+        bs.writeFloat(0.5);
     });
-    sp->sendNetworkPacket(pk);
+    sp->sendNetworkPacket(pk);*/
 }
 void mod_init(std::list<string>& modlist) {
     printf("[GUI] Loaded " BDL_TAG "\n");

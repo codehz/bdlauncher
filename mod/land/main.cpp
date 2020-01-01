@@ -236,7 +236,12 @@ static void oncmd(argVec &a, CommandOrigin const &b, CommandOutput &outp)
         {
             DataLand dl;
             Fland2Dland(lp, dl);
-            dl.perm = (LandPerm)atoi(a[1]);
+            auto pm=(LandPerm)atoi(a[1]);
+            if((pm&PERM_ADMIN_FLY) && !op){
+                outp.error("Permission denied");
+                return;
+            }
+            dl.perm = pm;
             updLand(dl);
             outp.success("§bChange permissions successfully");
         }
@@ -292,8 +297,7 @@ static void oncmd(argVec &a, CommandOrigin const &b, CommandOutput &outp)
     }
     if (a[0] == "trustgui")
     {
-        string name = b.getName();
-        if (sp)
+        if (sp){
             gui_ChoosePlayer(sp, "Choose players to trust", "Trust", [](ServerPlayer* xx,string_view dest) {
                     SPBuf sb;
                     sb.write("land trust \"");
@@ -301,8 +305,47 @@ static void oncmd(argVec &a, CommandOrigin const &b, CommandOutput &outp)
                     sb.write("\"");
                     runcmdAs(sb.get(), xx);
             });
+            outp.success();
+        }
         else
         {
+            outp.error("Error");
+        }
+    }
+    if (a[0] == "untrustgui"){
+        auto &pos = sp->getPos();
+        int dim = sp->getDimensionId();
+        auto lp = getFastLand(pos.x, pos.z, dim);
+        if (lp && (lp->chkOwner(nm) == 2 || op))
+        {
+            SharedForm* sf=getForm("Untrust a player","Untrust a player");
+            DataLand dl;
+            Fland2Dland(lp, dl);
+            static_deque<string_view> owners;
+            split_string(dl.owner,owners,"||");
+            for(auto& i:owners){
+                string_view x;
+                if(i[0]=='|'){
+                    x=i.substr(1);
+                }else{
+                    if(i[i.size()-1]=='|'){
+                        x=i.substr(0,i.size()-1);
+                    }else{
+                        x=i;
+                    }
+                }
+                sf->addButton(x);
+            }
+            sf->cb=[](ServerPlayer* sp,string_view c,int idx){
+                SPBuf<512> buf;
+                buf.write("land untrust \"");
+                buf.write(c);
+                buf.write("\"");
+                runcmdAs(buf.get(),sp);
+            };
+            sendForm(*sp,sf);
+            outp.success();
+        }else{
             outp.error("Error");
         }
     }
@@ -479,13 +522,15 @@ static bool handle_popitem(ServerPlayer &sp, BlockPos &bpos)
 }
 
 static unordered_map<string, string> lastland;
+static unordered_set<string> flying;
 THook(void *, _ZN12ServerPlayer9tickWorldERK4Tick, ServerPlayer *sp, unsigned long const *tk)
 {
     if (!land_tip)
         return original(sp, tk);
     if (*tk%16==0)
     {
-        auto &oldname = lastland[sp->getName()];
+        auto& plyname=sp->getName();
+        auto &oldname = lastland[plyname];
         auto &pos = sp->getPos();
         int dim = sp->getDimensionId();
         FastLand *fl = getFastLand(round(pos.x), round(pos.z), dim);
@@ -493,6 +538,11 @@ THook(void *, _ZN12ServerPlayer9tickWorldERK4Tick, ServerPlayer *sp, unsigned lo
         if (fl)
         {
             newname = string_view(fl->owner,fl->owner_sz);
+            /*if((fl->perm&PERM_ADMIN_FLY) && fl->chkOwner(plyname)){
+                if(!flying.count(plyname)){
+                    flying.insert(plyname);
+                }
+            }*/
         }
         if (oldname != newname)
         {

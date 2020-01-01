@@ -17,7 +17,8 @@ enum LandPerm:char{
     PERM_ATK=4,
     PERM_BUILD=8,
     PERM_POPITEM=16,
-    PERM_INTERWITHACTOR=32
+    PERM_INTERWITHACTOR=32,
+    PERM_ADMIN_FLY=64
 };
 typedef unsigned int lpos_t;
 struct FastLand{

@@ -300,6 +300,7 @@ static void oncmd(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
        auto sp=getSP(b.getEntity());
        if(sp){
            SendTPGUI(sp);
+           outp.success();
        }
     }
     if(a[0]=="ac") {
@@ -387,19 +388,6 @@ static void oncmd_home(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
     }
     if(a[0]=="gui"){
         home& myh=getHome(name);
-        /*auto lis=new list<pair<string,std::function<void()> > >();
-        for(int i=0; i<myh.cnt; ++i) {
-            string warpname=myh.vals[i].name;
-            lis->emplace_back(
-                warpname,
-                [warpname,name]()->void{
-                    auto x=getSrvLevel()->getPlayer(name);
-                    if(x)
-                        runcmdAs("home go "+SafeStr(warpname),x);
-                }
-            );
-        }
-        gui_Buttons((ServerPlayer*)b.getEntity(),"Please choose a home","Home",lis);*/
         auto sf=getForm("Home","Please choose a home");
         for(int i=0; i<myh.cnt; ++i) {
             auto& hname=myh.vals[i].name;
@@ -413,6 +401,7 @@ static void oncmd_home(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
             runcmdAs(sb.get(),sp);
         };
         sendForm(*(ServerPlayer*)b.getEntity(),sf);
+        outp.success();
     }
 }
 static void oncmd_warp(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
@@ -444,20 +433,6 @@ static void oncmd_warp(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
         return;
     }
     if(a[0]=="gui"){
-        /*auto lis=new list<pair<string,std::function<void()> > >();
-        string nam=b.getName();
-        for(auto const& i:warp_list) {
-            string warpname=i;
-            lis->emplace_back(
-                warpname,
-                [warpname,nam]()->void{
-                    auto x=getSrvLevel()->getPlayer(nam);
-                    if(x)
-                        runcmdAs("warp "+SafeStr(warpname),x);
-                }
-            );
-        }
-        gui_Buttons((ServerPlayer*)b.getEntity(),"Please choose a warp","Warp",lis);*/
         auto sf=getForm("Home","Please choose a home");
         for(auto const&i:warp_list) {
             auto& hname=i;
@@ -471,6 +446,7 @@ static void oncmd_warp(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
             runcmdAs(sb.get(),sp);
         };
         sendForm(*(ServerPlayer*)b.getEntity(),sf);
+        outp.success();
     }
     //go
     auto it=warp.find(string(a[0]));

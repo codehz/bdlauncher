@@ -139,6 +139,7 @@ static void oncmd(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
                 auto dstp=getplayer_byname(dst);
                 if(dstp)
                     sendText(dstp,"§bYou get "+std::to_string(amo)+" money");
+        outp.success();
     }
     if(a[0]=="reduce" || a[0]=="rd") {
         if((int)b.getPermissionsLevel()<1) return;
@@ -207,6 +208,7 @@ static void oncmd(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
                     };
                 sendForm(*p,sf);
         });
+        outp.success();
     }
 }
 #include<iostream>
