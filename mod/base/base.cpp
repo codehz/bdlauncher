@@ -19,6 +19,7 @@ using std::vector;
 #include<sstream>
 #include"base.h"
 #include"dbimpl.hpp"
+extern void load_helper(list<string>& modlist);
 extern "C" {
    BDL_EXPORT void mod_init(list<string>& modlist);
    BDL_EXPORT Minecraft* MC;
@@ -26,10 +27,8 @@ extern "C" {
 }
 static ServerNetworkHandler* MCSNH;
 static LoopbackPacketSender* MCPKTSEND;
-//static Minecraft* MC;
-//static Level* ServLevel;
 static MinecraftCommands* MCCMD;
-static unordered_map<ServerPlayer*,pair<unsigned char,string> > sp_net;
+static unordered_map<ServerPlayer*,unsigned char> sp_net;
 static uintptr_t SPEC_NETI_OFFSET;
 THook(void*,_ZN12ServerPlayerC1ER5LevelR12PacketSenderR14NetworkHandlerRN15ClientBlobCache6Server22ActiveTransfersManagerE8GameTypeRK17NetworkIdentifierhSt8functionIFvRS_EEN3mce4UUIDERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt10unique_ptrI11CertificateSt14default_deleteIST_EEi,\
 ServerPlayer* a1,Level* a2,void* a3,void* a4,void* a5,void* a6,NetworkIdentifier* a7,\
@@ -46,10 +45,9 @@ unsigned char a8,void* a9,void* a10,void* a10_1,string* a11,Certificate* a12,voi
                 SPEC_NETI_OFFSET=i;
             }
         }
+        printf("get offset %d\n",SPEC_NETI_OFFSET);
     }
-    printf("get offset %d\n",SPEC_NETI_OFFSET);
-    printf("string %s\n",ExtendedCertificate::getIdentityName(*a12).c_str());
-    sp_net[a1]={a8,ExtendedCertificate::getIdentityName(*a12)};
+    sp_net[a1]=a8;
     return ret;
 }
 THook(void*,_ZN12ServerPlayerD0Ev,ServerPlayer* sp){
@@ -57,8 +55,8 @@ THook(void*,_ZN12ServerPlayerD0Ev,ServerPlayer* sp){
     return original(sp);
 }
 void base_sendPkt(ServerPlayer* sp,Packet& pk){
-    auto& i=sp_net[sp];
-    MCPKTSEND->sendToClient(*getPlayerNeti(*sp),pk,i.first);
+    auto i=sp_net[sp];
+    MCPKTSEND->sendToClient(*getPlayerNeti(*sp),pk,i);
 }
 //export APIS
 void split_string(string_view s, std::vector<std::string_view>& v, string_view c)
@@ -165,13 +163,7 @@ struct MyTxtPk{
         pk=new MyPkt(0x9,[this](void*,BinaryStream& bs){
             bs.writeByte(this->type);
             bs.writeBool(false);
-            bs.writeUnsignedVarInt(this->str.size());
-            bs.write(this->str.data(),this->str.size());
-            //bs.writeUnsignedInt64(0);
-            /*
-            bs.writeUnsignedVarInt(0);
-            bs.writeUnsignedVarInt(0);//padding
-            bs.writeUnsignedVarInt(0);*/
+            bs.writeStr(this->str);
         });
     }
     void send(Player* p){
@@ -185,14 +177,10 @@ void sendText(Player* a,string_view ct,TextType type) {
 }
 void broadcastText(string_view ct,TextType type){
     gTextPkt.setText(ct,type);
-    auto& vc=*ServLevel->getUsers();
-    for(auto& i:vc){
-        gTextPkt.send(i.get());
-    }
+    MCPKTSEND->sendBroadcast(*gTextPkt.pk);
 }
 static TeleportCommand cmd_p;
 
-extern void load_helper(list<string>& modlist);
 void TeleportA(Actor& a,Vec3 b,AutomaticID<Dimension,int> c) {
     if(a.getDimensionId()!=c){
         cmd_p.teleport(a,b,nullptr,c);
@@ -293,7 +281,8 @@ ServerPlayer* getuser_byname(string_view a){
     return nullptr;
 }
 void forceKickPlayer(ServerPlayer& sp){
-    MCSNH->disconnectClient(*getPlayerNeti(sp),"Kicked",false);
+    //MCSNH->disconnectClient(*getPlayerNeti(sp),"Kicked",false);
+    MCSNH->onSubclientLogoff(*getPlayerNeti(sp),sp_net[&sp]);
     //sp.disconnect();
 }
 extern "C"{

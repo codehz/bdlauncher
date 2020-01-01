@@ -9,26 +9,18 @@ extern "C"{
     void _ZN12ItemRegistry12lookupByNameERiRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE(char*,int&,const string*);
     void _ZN9ItemStack10EMPTY_ITEME();
     void _ZN7WeakPtrI4ItemE5resetEv(char*);
+    void _ZN12ItemRegistry7getItemEs(char*,short);
 }
 ItemStack* createItemStack(string const& name,unsigned char amo){
-    char filler[16];
-    memset(filler,0,sizeof(filler));
-    int unk=0;
-    _ZN12ItemRegistry12lookupByNameERiRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE(filler,unk,&name);
-    Item* ite=nullptr;
-    if(access(filler,Item**,0)){
-        ite=*access(filler,Item**,0);
+    ItemStack* ik=new ItemStack();
+    auto res=createItemStack_static(name,amo,ik);
+    if(res==nullptr){
+        free(ik);
+        return nullptr;
     }
-    _ZN7WeakPtrI4ItemE5resetEv(filler);
-    if(!ite) return nullptr;
-    ItemStack* ik=new ItemStack(*ite);
-    ik->setStackSize(amo);
-    ik->setCustomName("kksk");
-    ik->setCustomLore({"lol","wtf"});
-    printf(ik->toString().c_str());
     return ik;
 }
-ItemStack* createItemStack(string const& name,unsigned char amo,ItemStack* stk){
+ItemStack* createItemStack_static(string const& name,unsigned char amo,ItemStack* stk){
     char filler[16];
     memset(filler,0,sizeof(filler));
     int unk=0;
@@ -41,8 +33,31 @@ ItemStack* createItemStack(string const& name,unsigned char amo,ItemStack* stk){
     if(!ite) return nullptr;
     ItemStack* ik=new (stk)ItemStack(*ite);
     ik->setStackSize(amo);
-    ik->setCustomName("kksk");
-    ik->setCustomLore({"lol","wtf"});
+    return stk;
+}
+ItemStack* createItemStack(short id,short aux,unsigned char amo){
+    ItemStack* ik=new ItemStack();
+    auto res=createItemStack_static(id,aux,amo,ik);
+    if(res==nullptr){
+        free(ik);
+        return nullptr;
+    }
+    return ik;
+}
+ItemStack* createItemStack_static(short id,short aux,unsigned char amo,ItemStack* stk){
+    char filler[16];
+    memset(filler,0,sizeof(filler));
+    int unk=0;
+    _ZN12ItemRegistry7getItemEs(filler,id);
+    Item* ite=nullptr;
+    if(access(filler,Item**,0)){
+        ite=*access(filler,Item**,0);
+    }
+    _ZN7WeakPtrI4ItemE5resetEv(filler);
+    if(!ite) return nullptr;
+    ItemStack* ik=new (stk)ItemStack(*ite);
+    ik->setStackSize(amo);
+    ik->setAuxValue(aux);
     printf(ik->toString().c_str());
     return stk;
 }

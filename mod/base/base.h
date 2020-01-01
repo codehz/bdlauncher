@@ -67,8 +67,10 @@ BDL_EXPORT NetworkIdentifier *getPlayerNeti(ServerPlayer &sp);
 BDL_EXPORT ServerPlayer *getuser_byname(string_view a);
 BDL_EXPORT void base_sendPkt(ServerPlayer* sp,Packet& pk);
 
+BDL_EXPORT ItemStack* createItemStack_static(short id,short aux,unsigned char amo,ItemStack* stk);
+BDL_EXPORT ItemStack* createItemStack(short id,short aux,unsigned char amo);
+BDL_EXPORT ItemStack* createItemStack_static(string const& name,unsigned char amo,ItemStack* stk);
 BDL_EXPORT ItemStack* createItemStack(string const& name,unsigned char amo);
-BDL_EXPORT ItemStack* createItemStack(string const& name,unsigned char amo,ItemStack* stk);
 
 BDL_EXPORT void giveItem(ServerPlayer& sp,ItemStack* is);
 BDL_EXPORT ActorUniqueID summon(BlockSource& bs,Vec3 const& vc,string const& name);
@@ -88,10 +90,8 @@ outp.error(buf); \
 return; \
 }
 
-#define SafeStr(a) ("\"" + (a) + "\"")
+//#define SafeStr(a) ("\"" + (a) + "\"")
 
-//static Minecraft *McCache;
-static Level *LvCache;
 #ifndef BASE
 extern "C"{
     void MC(); //dummy
@@ -100,15 +100,6 @@ extern "C"{
 #endif
 #define getMC() (*(Minecraft**)MC)
 #define getSrvLevel() (*(Level**)ServLevel)
-/*static inline Minecraft *getMC()
-{
-    return likely(McCache) ? McCache : (McCache = _getMC());
-}
-static inline Level *getSrvLevel()
-{
-    return likely(LvCache) ? LvCache : (LvCache = getMC()->getLevel());
-}
-*/
 static inline bool isOp(ServerPlayer const *sp)
 {
     return (int)sp->getPlayerPermissionLevel() > 1;
@@ -140,4 +131,4 @@ struct LDBImpl
 };
 
 using std::pair;
-#define BDL_TAG "V2019-12-31"
+#define BDL_TAG "V2020-1-1"

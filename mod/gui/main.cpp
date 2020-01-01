@@ -109,7 +109,7 @@ void gui_ChoosePlayer(ServerPlayer* sp,string_view text,string_view title,std::f
 void cm(argVec& a,CommandOrigin const& b,CommandOutput& c){
     auto sp=getSP(b.getEntity());
     ItemStack is;
-    auto pis=createItemStack("dirt",10,&is);
+    auto pis=createItemStack_static(3,0,10,&is);
     giveItem(*sp,pis);
     printf("res %d\n",takeItem(*sp,&sp->getCarriedItem()));
     auto eid=summon(sp->getRegion(),sp->getPos(),"zombie");
@@ -117,12 +117,12 @@ void cm(argVec& a,CommandOrigin const& b,CommandOutput& c){
     if(act){
         printf("get act\n");
         act->setNameTag("kksk");
-        //act->setSize(10,10);
-        act->setAutonomous(true);
-        act->setNameTagVisible(true);
         act->setScoreTag("kksk");
+        act->setNameTagVisible(true);
+        //act->setSize(10,10);
+        act->setNameTagAlwaysVisible();
         is.~ItemStack();
-        pis=createItemStack("diamond_sword",1,&is);
+        pis=createItemStack_static("diamond_sword",1,&is);
         act->setCarriedItem(*pis);
     }
     return;
@@ -185,5 +185,5 @@ bs.writeUnsignedVarInt(54);bs.writeUnsignedVarInt(3);bs.writeFloat(5);
 void mod_init(std::list<string>& modlist) {
     printf("[GUI] Loaded " BDL_TAG "\n");
     load_helper(modlist);
-    register_cmd("Z",cm,"debug",1);
+    register_cmd("g",cm,"debug",1);
 }

@@ -405,6 +405,7 @@ struct ItemStackBase
 {
     char filler[312]; //unk
     short getAuxValue() const;
+    void setAuxValue(short);
     short getId() const;
     BlockLegacy const &getLegacyBlock() const;
     unsigned char getStackSize() const;
@@ -514,6 +515,10 @@ typedef unsigned long Shash_t;
 enum ArmorSlot:int{
     UNK=0
 };
+struct SynchedActorData{
+    template<typename T>
+	void set(unsigned short, T const&);
+};
 class Actor : public TickingArea
 {
 public:
@@ -541,14 +546,24 @@ public:
     int getOwnerEntityType();
     ActorUniqueID getOwnerId() const;
     void setNameTagVisible(bool);
+    void setNameTagAlwaysVisible(){
+        getDATA()->set(80,(signed char)1);
+    }
     bool isPlayer() const
     {
         return access(this, void *, 0) == ((void **)vtSP);
     }
-    void setSize(float, float);
+    void setSize(float scale, float bbox){
+        getDATA()->set(38,scale);
+        getDATA()->set(53,bbox);
+        getDATA()->set(54,bbox);
+    }
     void setArmor(ArmorSlot, ItemStack const&);
     void setCarriedItem(ItemStack const&);
     void setAutonomous(bool);
+    inline SynchedActorData* getDATA(){
+        return (SynchedActorData*)(((uintptr_t)this)+0x130);
+    }
 };
 class Mob : public Actor
 {
@@ -711,3 +726,4 @@ struct ActorDefinitionIdentifier{
 struct CommandUtils{
     static void spawnEntityAt(BlockSource&, Vec3 const&, ActorDefinitionIdentifier const&, ActorUniqueID&, Actor* unk=nullptr);
 };
+
