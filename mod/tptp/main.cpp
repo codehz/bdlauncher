@@ -610,7 +610,7 @@ THook(void *, _ZN12ServerPlayer9tickWorldERK4Tick, ServerPlayer *sp, unsigned lo
         auto it = tpmap.find(name);
         if (it != tpmap.end())
         {
-            if (it->second.reqtime <= clock() + CLOCKS_PER_SEC * TP_TIMEOUT)
+            if (it->second.reqtime + CLOCKS_PER_SEC * TP_TIMEOUT <= clock())
             {
                 player_target.erase(it->second.name);
                 sendText(sp,"You rejected the TP request(Timeout)");
