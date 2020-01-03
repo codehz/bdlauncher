@@ -20,7 +20,8 @@ extern "C"
     BDL_EXPORT void mod_init(std::list<string> &modlist);
 }
 extern void load_helper(std::list<string> &modlist);
-struct FText
+LDBImpl db("data_v2/bossbar");
+/*struct FText
 {
     float x, y, z;
     int dim;
@@ -36,7 +37,7 @@ struct FText
     }
 };
 vector<FText> txts;
-LDBImpl db("data_v2/floatText");
+LDBImpl db("data_v2/bossbar");
 void sendFText(FText const &x)
 {
     //remove 0x0e
@@ -77,9 +78,8 @@ void sendFText(FText const &x)
 
         }
     }
-}
+}*/
 const unsigned long bbid=1145141919ull;
-string BossBar="ksksksk";
 void MoveBB(ServerPlayer* sp){
     MyPkt pk(0x12,[&](void*,BinaryStream& bs){
         bs.writeUnsignedVarInt64(bbid);
@@ -114,11 +114,7 @@ void CreateEntBB(ServerPlayer* sp){
     });
     sp->sendNetworkPacket(pk);
 }
-void ReShowBB(ServerPlayer* sp){
-    MoveBB(sp);
-    SendBB(sp,BossBar);
-}
-void cm(argVec &a, CommandOrigin const &b, CommandOutput &c)
+static void cm(argVec &a, CommandOrigin const &b, CommandOutput &c)
 {
     if(a[0]=="all"){
         auto* x=getSrvLevel()->getUsers();
@@ -139,7 +135,7 @@ void cm(argVec &a, CommandOrigin const &b, CommandOutput &c)
         c.success();
     }
 }
-void cm2(argVec &a, CommandOrigin const &b, CommandOutput &c)
+static void cm2(argVec &a, CommandOrigin const &b, CommandOutput &c)
 {
     if(a[0]=="all"){
         auto* x=getSrvLevel()->getUsers();
@@ -156,10 +152,37 @@ void cm2(argVec &a, CommandOrigin const &b, CommandOutput &c)
         c.success();
     }
 }
+static string PinnedBBar;
+static void cm_pin(argVec &a, CommandOrigin const &b, CommandOutput &c)
+{  
+    if(a[0]=="unpin") {
+        PinnedBBar.clear(); 
+        db.Del("pinned");
+        runcmd("hidebb all");
+    }else{
+        SPBuf<1024> sb;
+        sb.write("sendbb all \"");
+        sb.write(a[0]);
+        sb.write("\"");
+        runcmd(sb.get());
+        PinnedBBar=a[0];
+        db.Put("pinned",a[0]);
+    }
+    c.success();
+}
+static void onJoin(ServerPlayer* sp){
+    if(PinnedBBar.size()){
+        CreateEntBB(sp);
+        SendBB(sp,PinnedBBar,true);
+    }
+}
 void mod_init(std::list<string> &modlist)
 {
-    printf("[FloatingText] Loaded " BDL_TAG "\n");
-    load_helper(modlist);
+db.Get("pinned",PinnedBBar);
+    printf("[BossBar] Loaded " BDL_TAG "\n");
     register_cmd("sendbb", cm, "send bb", 1);
     register_cmd("hidebb", cm2, "hide bb", 1);
+    register_cmd("pinbb", cm_pin, "pin bb", 1);
+    reg_player_join(onJoin);
+    load_helper(modlist);
 }

@@ -101,7 +101,7 @@ struct AllocPool{
 };
 
 
-int atoi(string_view sv){
+constexpr int atoi(string_view sv){
     int res=0;
     int fg=0;
     const char* c=sv.data();

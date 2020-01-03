@@ -123,36 +123,33 @@ static void oncmd(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
     if(a[0]=="add") {
         if((int)b.getPermissionsLevel()<1) return;
         ARGSZ(2)
-        string dst;
         int amo;
+        SPBuf buf;
         if(a.size()==3) {
-            dst=a[1];
-            amo=atoi(a[2]);
+            add_money(a[1],atoi(a[2]));
+            buf.write("§bAdded ");
+            buf.write(a[2]);
+            buf.write("money for ");
+            buf.write(a[1]);   
         } else {
-            dst=b.getName();
-            amo=atoi(a[1]);
+            add_money(b.getName(),atoi(a[1]));
+            buf.write("§bAdded ");
+            buf.write(a[1]);
+            buf.write("money for ");
+            buf.write(b.getName());   
         }
-        add_money(dst,amo);
-        char buf[1024];
-        snprintf(buf,1024,"§bAdded %d money for %s",amo,dst.c_str());
-        outp.success(string(buf));
-                auto dstp=getplayer_byname(dst);
-                if(dstp)
-                    sendText(dstp,"§bYou get "+std::to_string(amo)+" money");
+        outp.success(buf.getstr());        
+                if(a.size()==3){
+                    auto dstp=getplayer_byname(a[1]);
+                    sendText(dstp,buf.get());
+                }
         outp.success();
     }
     if(a[0]=="reduce" || a[0]=="rd") {
         if((int)b.getPermissionsLevel()<1) return;
         ARGSZ(2)
-        string dst;
-        int amo;
-        if(a.size()==3) {
-            dst=a[1];
-            amo=atoi(a[2]);
-        } else {
-            dst=b.getName();
-            amo=atoi(a[1]);
-        }
+        string_view dst=a[1];
+        int amo=atoi(a[2]);
         if(red_money(dst,amo)) {
             outp.success("§bDeducted successfully");
                 auto dstp=getplayer_byname(dst);
@@ -213,10 +210,6 @@ static void oncmd(argVec& a,CommandOrigin const & b,CommandOutput &outp) {
 }
 #include<iostream>
 void mod_init(std::list<string>& modlist) {
-/*SharedForm* sf=getForm("Pay","",true);
- sf->addInput("kksk");
-std::cout<<sf->serial()<<std::endl;
-exit(0);*/
     printf("[MONEY] loaded! " BDL_TAG "\n");
     load();
     loadcfg();

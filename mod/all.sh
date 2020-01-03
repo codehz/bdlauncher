@@ -21,4 +21,4 @@ cd vars;sh cmp.sh;cd ..;
 cd map;sh cmp.sh;cd ..;
 #cd wtf;sh cmp.sh;cd ..;
 cd custname;sh cmp.sh;cd ..;
-cd floatText;sh cmp.sh;cd ..;
+cd bossbar;sh cmp.sh;cd ..;

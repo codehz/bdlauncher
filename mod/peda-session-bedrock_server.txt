@@ -1,0 +1,2 @@
+break _ZN12ServerPlayer27setLocalPlayerAsInitializedEv
+

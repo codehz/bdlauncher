@@ -13,11 +13,11 @@ THook(void*,_ZN20ServerNetworkHandler19_displayGameMessageERK6PlayerRKNSt7__cxx1
     return nullptr;
 }
 static_deque<void(*)(ServerPlayer *)> join_hook;
-THook(void*,_ZN20ServerNetworkHandler24_sendAdditionalLevelDataER12ServerPlayerRK17NetworkIdentifier,void* a,ServerPlayer* sp,void* x){
+THook(void*,_ZN12ServerPlayer27setLocalPlayerAsInitializedEv,ServerPlayer* sp){
     for(auto& hk:join_hook){
         hk(sp);
     }
-    return original(a,sp,x);
+    return original(sp);
 }
 static_deque<void(*)(ServerPlayer *)>  left_hook;
 THook(void*,_ZN20ServerNetworkHandler13_onPlayerLeftEP12ServerPlayerb,void* a,ServerPlayer* sp,bool x){

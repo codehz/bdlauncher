@@ -51,7 +51,7 @@ public:
 };
 typedef unsigned long STRING_HASH;
 
-STRING_HASH do_hash(string_view x){
+constexpr STRING_HASH do_hash(string_view x){
     auto sz=x.size();
     auto c=x.data();
     unsigned int hash1=0;unsigned int hash2=0;
