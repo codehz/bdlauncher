@@ -12,7 +12,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "gui.h"
 using std::string;
 using std::unordered_map;
 
@@ -79,13 +78,88 @@ void sendFText(FText const &x)
         }
     }
 }
+const unsigned long bbid=1145141919ull;
+string BossBar="ksksksk";
+void MoveBB(ServerPlayer* sp){
+    MyPkt pk(0x12,[&](void*,BinaryStream& bs){
+        bs.writeUnsignedVarInt64(bbid);
+        bs.writeByte(3);
+        auto& pos=sp->getPos();
+        bs.writeVec3({pos.x,-10,pos.z});
+        bs.writeUnsignedInt(0); //3*bytes
+    });
+    sp->sendNetworkPacket(pk);
+}
+void SendBB(ServerPlayer* sp,string_view bbar,bool show=true){
+    MyPkt pk(0x4a,[&](void*,BinaryStream& bs){
+        bs.writeUnsignedVarInt64(bbid);
+        bs.writeUnsignedVarInt(show?0:2);
+        bs.writeStr(bbar);
+        bs.writeFloat(0.5);
+    });
+    sp->sendNetworkPacket(pk);
+}
+void CreateEntBB(ServerPlayer* sp){
+    MyPkt pk(0x0d,[&](void*,BinaryStream& bs){
+        bs.writeUnsignedVarInt64(bbid);
+        bs.writeUnsignedVarInt64(bbid);
+        bs.writeStr("minecraft:pig");
+        auto& pos=sp->getPos();
+        bs.writeVec3({pos.x,-10,pos.z});
+         bs.writeVec3({0,0,0});
+         bs.writeVec3({0,0,0});
+         bs.writeUnsignedVarInt(0); //attr
+         bs.writeUnsignedVarInt(0); //meta
+         bs.writeUnsignedVarInt(0); //link
+    });
+    sp->sendNetworkPacket(pk);
+}
+void ReShowBB(ServerPlayer* sp){
+    MoveBB(sp);
+    SendBB(sp,BossBar);
+}
 void cm(argVec &a, CommandOrigin const &b, CommandOutput &c)
 {
-    
+    if(a[0]=="all"){
+        auto* x=getSrvLevel()->getUsers();
+        for(auto& i:*x){
+            auto sp=i.get();
+            SendBB(sp,"",false);
+            CreateEntBB(sp);
+            SendBB(sp,a[1],true);
+        }
+        c.success();
+        return;
+    }
+    auto sp=getuser_byname(a[0]);//getSP(b.getEntity());
+    if(sp){
+        SendBB(sp,"",false);
+        CreateEntBB(sp);
+        SendBB(sp,a[1],true);
+        c.success();
+    }
+}
+void cm2(argVec &a, CommandOrigin const &b, CommandOutput &c)
+{
+    if(a[0]=="all"){
+        auto* x=getSrvLevel()->getUsers();
+        for(auto& i:*x){
+            auto sp=i.get();
+            SendBB(sp,"",false);
+        }
+        c.success();
+        return;
+    }
+    auto sp=getuser_byname(a[0]);//getSP(b.getEntity());
+    if(sp){
+        SendBB(sp,"",false);
+        c.success();
+    }
 }
 void mod_init(std::list<string> &modlist)
 {
     printf("[FloatingText] Loaded " BDL_TAG "\n");
     load_helper(modlist);
-    register_cmd("g", cm, "debug", 1);
+    register_cmd("sendbb", cm, "send bb", 1);
+    register_cmd("hidebb", cm2, "hide bb", 1);
 }
