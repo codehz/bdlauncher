@@ -1,13 +1,10 @@
 # bdlauncher
 A flexible , simple and easy-to-install third-party BedrockServer launcher with mods support (1.14)  
-
-Only for BDS Linux   
+Only for BDS Linux  
 telegram group https://t.me/bdlauncher  
-QQ group 955765957
 # Docs:
 Install: [How to install](https://github.com/Sysca11/bdlauncher/wiki/Install)  
 If you need more help, check out the [wiki](https://github.com/Sysca11/bdlauncher/wiki).
-
 # Credits:
 ```
 HOOK Lib:https://github.com/Menooker/PFishHook
