@@ -7,8 +7,8 @@ MIT with additional conditions
 If you want to redistribute software in a commercial manner,please read LICENSE carefully   
 商用用途请仔细阅读LICENSE   
 # Docs:
-Install: [How to install](https://github.com/Sysca11/bdlauncher/wiki/Install)  
-If you need more help, check out the [wiki](https://github.com/Sysca11/bdlauncher/wiki).
+- [Install](https://github.com/Sysca11/bdlauncher/blob/master/docs/Install.md)  
+- [docs folder](https://github.com/Sysca11/bdlauncher/blob/master/docs/Home.md)
 # Credits:
 ```
 HOOK Lib:https://github.com/Menooker/PFishHook
