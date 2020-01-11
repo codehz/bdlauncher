@@ -2,6 +2,10 @@
 A flexible , simple and easy-to-install third-party BedrockServer launcher with mods support (1.14)  
 Only for BDS Linux  
 telegram group https://t.me/bdlauncher  
+# License: 
+MIT with additional conditions   
+If you want to redistribute software in a commercial manner,please read LICENSE carefully   
+商用用途请仔细阅读LICENSE   
 # Docs:
 Install: [How to install](https://github.com/Sysca11/bdlauncher/wiki/Install)  
 If you need more help, check out the [wiki](https://github.com/Sysca11/bdlauncher/wiki).
